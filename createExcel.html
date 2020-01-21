@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Creating JSON to Excel file using Sheet JS</title>
+	 <script src="js/jquery.js"> </script>
+    <script src="js/xlsx.full.min.js"></script>
+    <script src="js/FileSaver.min.js"></script>
+</head>
+<body>
+	<div class="wrapper">
+		<input type="file" name="" accept=".json" id="fileUploader">
+		<button id="button-a" onClick="fileSelected()">Create Excel</button>
+	</div>
+	<script type="text/javascript">
+		function fileSelected(){
+			var file = document.getElementById('fileUploader').files[0]
+			var reader = new FileReader();
+			reader.onload = function (e) {
+				createExcel(e.target.result);
+            };
+			reader.readAsText(file)
+		}
+		function createExcel(ws_data){
+			var wb = XLSX.utils.book_new();
+			wb.SheetNames.push("Test Sheet"); // Create a worksheet name
+			var json = JSON.stringify(eval("(" + ws_data + ")"));
+			var str = jQuery.parseJSON(json)
+			var ws = XLSX.utils.json_to_sheet(str);
+			wb.Sheets["Test Sheet"] = ws;
+			var wbout = XLSX.write(wb, {booktype : "xlsx", type : "binary"})
+			function s2ab(s) { 
+	            var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+	            var view = new Uint8Array(buf);  //create uint8array as viewer
+	            for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+	            return buf;    
+			}
+		    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'test.xlsx');
+		}
+	</script>
+</body>
+</html>
